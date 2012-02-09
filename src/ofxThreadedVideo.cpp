@@ -10,10 +10,14 @@
 #include "ofxThreadedVideo.h"
 
 static ofMutex ofxThreadedVideoMutex;
-
+static map<int, queue<string> > instanceQueues;
 //--------------------------------------------------------------
 ofxThreadedVideo::ofxThreadedVideo(){
-
+    
+    instanceID = instanceQueues.size() + 1;
+    queue<string> newQueue;
+    instanceQueues[instanceID] = newQueue;
+    
     // setup video instances
     videos[0].setUseTexture(false);
     videos[1].setUseTexture(false);
@@ -33,7 +37,6 @@ ofxThreadedVideo::ofxThreadedVideo(){
     
     bUseAutoPlay = true;
     bUseQueue = false;
-    
 
     // let's go!
     startThread(false, false);
@@ -169,12 +172,27 @@ void ofxThreadedVideo::update(){
             }
         }
         
+        // iterate through all instance queues loading from lowest instance count to highest
+        for (map<int, queue<string> >::iterator it = instanceQueues.begin(); it != instanceQueues.end(); it++) {
+            // set references to queue and instance id
+            int _instanceID = it->first;
+            queue<string> & pathsToLoad = it->second;
+            // if a lower instance has a queue needing load then we wait
+            if(pathsToLoad.size() > 0 && _instanceID < instanceID) break;
+            // else if we've got paths in the queue we do a load
+            if(pathsToLoad.size() > 0 && _instanceID == instanceID){
+                // ...let's start trying to load it!
+                loadPath = pathsToLoad.front();
+                pathsToLoad.pop();
+                break;
+            }
+        }
         // if there's a movie in the queue
-        if(pathsToLoad.size() > 0){
-            // ...let's start trying to load it!
-            loadPath = pathsToLoad.front();
-            pathsToLoad.pop();
-        };
+//        if(pathsToLoad.size() > 0){
+//            // ...let's start trying to load it!
+//            loadPath = pathsToLoad.front();
+//            pathsToLoad.pop();
+//        };
         
         unlock();
     }
@@ -228,7 +246,7 @@ void ofxThreadedVideo::threadedFunction(){
                 }
 
                 // using a static mutex blocks all threads (including the main app) until we've loaded
-                ofxThreadedVideoMutex.lock();
+                //ofxThreadedVideoMutex.lock();
 
                 // load that movie!
                 if(videos[loadVideoID].loadMovie(loadPath)){
@@ -253,7 +271,7 @@ void ofxThreadedVideo::threadedFunction(){
                     ofNotifyEvent(threadedVideoEvent, videoEvent, this);
                 }
 
-                ofxThreadedVideoMutex.unlock();
+                //ofxThreadedVideoMutex.unlock();
                 loadPath = "";
             }
             
