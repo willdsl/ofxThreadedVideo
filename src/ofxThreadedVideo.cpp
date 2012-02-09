@@ -89,6 +89,10 @@ bool ofxThreadedVideo::getUseQueue(){
 //--------------------------------------------------------------
 bool ofxThreadedVideo::loadMovie(string fileName){
 
+    // get a reference to our queue from the static map of instance queues
+    map<int, queue<string> >::iterator it = instanceQueues.find(instanceID);
+    queue<string> & pathsToLoad = it->second;
+    
     // check if we're using a queue or only allowing one file to load at a time
     if (!bUseQueue && pathsToLoad.size() > 0) {
         ofLogWarning() << "Ignoring loadMovie(" << fileName << ") as we're not using a queue and a movie is already loading. Returning false. You can change this behaviour with setUseQueue(true)";
@@ -171,7 +175,7 @@ void ofxThreadedVideo::update(){
                 ofNotifyEvent(threadedVideoEvent, videoEvent, this);
             }
         }
-        
+        //ofxThreadedVideoMutex.lock();
         // iterate through all instance queues loading from lowest instance count to highest
         for (map<int, queue<string> >::iterator it = instanceQueues.begin(); it != instanceQueues.end(); it++) {
             // set references to queue and instance id
@@ -187,6 +191,7 @@ void ofxThreadedVideo::update(){
                 break;
             }
         }
+        //ofxThreadedVideoMutex.unlock();
         // if there's a movie in the queue
 //        if(pathsToLoad.size() > 0){
 //            // ...let's start trying to load it!
@@ -246,7 +251,7 @@ void ofxThreadedVideo::threadedFunction(){
                 }
 
                 // using a static mutex blocks all threads (including the main app) until we've loaded
-                //ofxThreadedVideoMutex.lock();
+                ofxThreadedVideoMutex.lock();
 
                 // load that movie!
                 if(videos[loadVideoID].loadMovie(loadPath)){
@@ -257,7 +262,7 @@ void ofxThreadedVideo::threadedFunction(){
                     if (bUseAutoPlay) videos[loadVideoID].play();
 
                     paths[loadVideoID] = loadPath;
-                    vector<string> pathParts = ofSplitString(paths[currentVideoID], "/");
+                    vector<string> pathParts = ofSplitString(paths[loadVideoID], "/");
                     names[loadVideoID] = pathParts[pathParts.size() - 1];
                     bFrameNew[loadVideoID] = false;
 
@@ -271,7 +276,7 @@ void ofxThreadedVideo::threadedFunction(){
                     ofNotifyEvent(threadedVideoEvent, videoEvent, this);
                 }
 
-                //ofxThreadedVideoMutex.unlock();
+                ofxThreadedVideoMutex.unlock();
                 loadPath = "";
             }
             

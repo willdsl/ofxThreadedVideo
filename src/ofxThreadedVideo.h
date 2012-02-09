@@ -131,7 +131,7 @@ private:
     bool bUseAutoPlay;
     bool bUseQueue;
 
-    queue<string> pathsToLoad;
+    //queue<string> pathsToLoad;
     string paths[2];
     string names[2];
     bool bFrameNew[2];
