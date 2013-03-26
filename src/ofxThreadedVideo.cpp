@@ -10,6 +10,7 @@
 #include "ofxThreadedVideo.h"
 
 static ofMutex ofxThreadedVideoMutex;
+static int instanceCount = -1;
 
 //--------------------------------------------------------------
 ofxThreadedVideo::ofxThreadedVideo(){
@@ -41,6 +42,9 @@ ofxThreadedVideo::ofxThreadedVideo(){
     prevMillis = ofGetElapsedTimeMillis();
     lastFrameTime = timeNow = timeThen = fps = frameRate = 0;
 
+    instanceCount++;
+    instanceID = instanceCount;
+    
     // let's go!
     startThread(false, false);
 }
@@ -119,7 +123,6 @@ void ofxThreadedVideo::setPixelFormat(ofPixelFormat _pixelFormat){
 void ofxThreadedVideo::closeMovie(){
     if(currentVideoID != VIDEO_NONE){
         videos[currentVideoID].closeMovie();
-        currentVideoID = VIDEO_NONE;
     }
 }
 
@@ -179,7 +182,7 @@ void ofxThreadedVideo::update(){
                 ofNotifyEvent(threadedVideoEvent, videoEvent, this);
             }
         }
-
+       
         // check for a new frame for current video
         updateTexture(currentVideoID);
 
@@ -217,7 +220,7 @@ void ofxThreadedVideo::updatePixels(int videoID){
 //--------------------------------------------------------------
 void ofxThreadedVideo::updateTexture(int videoID){
     if(videoID != VIDEO_NONE){
-        videos[videoID].update();
+         videos[videoID].update();
         if(bUseTexture){
             // make sure we don't have NULL pixels
             if(pixels[videoID]->getPixels() != NULL && textures[videoID].isAllocated()){
@@ -307,6 +310,12 @@ void ofxThreadedVideo::threadedFunction(){
 
                     ofLogVerbose() << "Loaded" << names[loadVideoID] << " " << loadVideoID;
 
+                    // hack audio assignment during load
+                    videos[loadVideoID].getAudioDevices();
+                    videos[loadVideoID].setAudioDevice("JackRouter");
+                    videos[loadVideoID].setAudioTrackToChannel(videos[loadVideoID].getAudioTrackList(), kAudioChannelLabel_Mono, kAudioChannelLabel_Discrete_0 + instanceID);
+                    videos[loadVideoID].getAudioTrackList();
+                    
                     // start rolling if AutoPlay is true
                     if (bUseAutoPlay) videos[loadVideoID].play();
 

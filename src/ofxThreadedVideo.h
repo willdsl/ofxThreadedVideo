@@ -154,6 +154,8 @@ private:
 
     double prevMillis, lastFrameTime, timeNow, timeThen, fps, frameRate;
 
+    int instanceID;
+    
     // block copy ctor and assignment operator
     ofxThreadedVideo(const ofxThreadedVideo& other);
     ofxThreadedVideo& operator=(const ofxThreadedVideo&);
