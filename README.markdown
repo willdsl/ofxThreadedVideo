@@ -1,7 +1,7 @@
 OFXTHREADED VIDEO
 =================
 
-ofxThreaded video does two things let's you load video's of any size without blocking the main application thread. As a side product this also tends to improve performance for some codecs. The best ones are JPEG 50-60% or ANIMATION 50-60%. It's been tested on OSX (10.6,7,8) and Windows 7.
+ofxThreaded Video allows videos of any size to load without blocking the main application thread. As a side product, this tends to improve performance for some codecs. The application runs optimally on formats JPEG or ANIMATION at 50-60% and has been tested on operating systems OSX (10.6,7,8) and Windows 7.
 
 I get around 8 HD 1920 x 1080 movies running smoothly on a late model rMBP.
 
