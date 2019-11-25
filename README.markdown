@@ -5,9 +5,10 @@ ofxThreaded Video allows videos of any size to load without blocking the main ap
 
 I get around 8 HD 1920 x 1080 movies running smoothly on a late model rMBP.
 
-Please note that this version is based on Quicktime 6 or 7 (ie., the 10.6 SDK) so you will need to install a copy of that and compile your projects (and oF) against 10.6 if you are using 10.7 or 10.8 on your dev machine (I'm working on a QTKit version at the moment…).
+For those using 10.7, 10.8 SDK:
 
-If you are on 10.7 or 10.8 this is a good reference for how to compile against the 'deprecated' SDK: http://forum.openframeworks.cc/index.php/topic,10343.msg47100.html#msg47100
+This project is based on Quicktime 6/7 with Software Development Kit(SDK) version 10.6. If you are using SDK versions 10.7 or 10.8, you will need to install a copy of SDK version 10.6 and compile your projects against it. A QTKit version is currently under development. The following is a good reference for how to compile against deprecated software development kits: http://forum.openframeworks.cc/index.php/topic,10343.msg47100.html#msg47100
+
 
 And you will need a:
 
